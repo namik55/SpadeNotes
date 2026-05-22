@@ -144,12 +144,15 @@ SpadeNotes is free and will always be free. If it saves you time during exam sea
 
 ---
 
-Feedback
+
 Found a bug? Have a feature idea? There are three ways to reach me:
-MethodLink📋 Feedback form
+
 [[Open Form](https://docs.google.com/forms/d/e/1FAIpQLSc6YZQBZ1ZnkvoPFoBgujRJZscZTapaagVTI5qtdvCvkY47iw/viewform)🐛
+
 [[GitHubIssues](https://github.com/namik55/SpadeNotes/issues)📧 
+
 E-mail: kaya.nmk@hotmail.com
+
 ---
 
 ## License
