@@ -1,6 +1,6 @@
 # SpadeNotes
 
-A calm, focused note-taking app for students and researchers.
+A calm, focused and SIMPLE note-taking app for students.
 
 **Free · Open Source · Local-first**
 
