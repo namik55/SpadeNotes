@@ -19,7 +19,7 @@ SpadeNotes is a desktop note-taking app built for students who find tools like M
 
 No cloud sync. No account required. Your notes are plain files on your own machine — always accessible, always yours.
 
-Built by a law student doing a Master's in European Law. Born out of frustration with bloated software during seminar paper season.
+Built by a law student doing a Master's in European Law. Born out of frustration with bloated software during seminar and thesis paper season.
 
 ---
 
@@ -54,7 +54,9 @@ Built by a law student doing a Master's in European Law. Born out of frustration
 
 ## Screenshots
 
-> *Coming soon*
+<img width="2558" height="1380" alt="main screen 1" src="https://github.com/user-attachments/assets/771cf573-c7ee-4734-a1f0-d792bdc15047" />
+
+<img width="1919" height="1020" alt="calendar 2" src="https://github.com/user-attachments/assets/8d7f23bc-cb91-4367-bcde-a7b0ac8cc184" />
 
 ---
 
@@ -122,17 +124,6 @@ SpadeNotes/
 
 ---
 
-## Roadmap
-
-- [ ] macOS release
-- [ ] Tags and search
-- [ ] Daily notes template
-- [ ] Backlinks between notes
-- [ ] Custom themes
-- [ ] Linux build
-
----
-
 ## Contributing
 
 SpadeNotes is open source and welcomes contributions. If you find a bug or have a feature idea, open an issue.
@@ -155,7 +146,7 @@ SpadeNotes is free and will always be free. If it saves you time during exam sea
 
 ## License
 
-MIT © 2026 Namik Kaya
+MIT © 2026 namik
 
 ---
 
