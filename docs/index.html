@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SpadeNotes — A calm place for your notes</title>
+  <meta name="description" content="A quiet desktop notebook for people who write more than they configure. Free. Open source. Local-first."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #f5f4f0;
+      --bg2:      #edecea;
+      --bg3:      #e4e2de;
+      --fg:       #0f0e0c;
+      --fg2:      #6b6860;
+      --fg3:      #a8a49e;
+      --accent:   #c8853a;
+      --accent2:  #e8a44a;
+      --border:   #d8d5cf;
+      --serif:    'Fraunces', 'Times New Roman', serif;
+      --sans:     'DM Sans', system-ui, sans-serif;
+      --mono:     'DM Mono', monospace;
+      --r:        6px;
+      --shadow:   0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.08);
+      --shadow-lg:0 2px 4px rgba(0,0,0,.06), 0 16px 48px rgba(0,0,0,.14);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 24px;
+      padding: 0 48px; height: 60px;
+      background: rgba(245,244,240,.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg); }
+    .nav-logo img { width: 22px; height: 22px; object-fit: contain; }
+    .nav-logo span { font-family: var(--serif); font-size: 18px; font-weight: 500; }
+    nav .spacer { flex: 1; }
+    .nav-link { color: var(--fg2); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .15s; }
+    .nav-link:hover { color: var(--fg); }
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: var(--r); font-size: 14px; font-weight: 500; font-family: var(--sans); cursor: pointer; text-decoration: none; transition: all .15s; border: 1.5px solid transparent; white-space: nowrap; }
+    .btn-primary { background: var(--fg); color: var(--bg); }
+    .btn-primary:hover { background: #2a2820; }
+    .btn-outline { border-color: var(--border); color: var(--fg); background: transparent; }
+    .btn-outline:hover { border-color: var(--fg2); background: var(--bg2); }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { background: #b87430; }
+    .btn-lg { padding: 12px 26px; font-size: 15px; }
+    .btn-xl { padding: 15px 32px; font-size: 16px; border-radius: 8px; }
+
+    /* ── Hero ── */
+    .hero {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+      max-width: 1160px; margin: 0 auto; padding: 96px 48px 80px;
+    }
+    .pill { display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px; border-radius: 99px; border: 1px solid var(--border); background: var(--bg2); font-size: 12px; font-weight: 600; color: var(--fg2); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 24px; }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    h1 { font-family: var(--serif); font-size: clamp(40px, 5vw, 60px); font-weight: 400; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 24px; }
+    h1 em { font-style: italic; color: var(--accent); }
+    .lede { font-size: 18px; color: var(--fg2); line-height: 1.65; margin-bottom: 36px; max-width: 480px; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .hero-meta { display: flex; gap: 16px; margin-top: 24px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--fg3); }
+    .hero-meta span { display: flex; align-items: center; gap: 5px; }
+
+    /* ── App preview ── */
+    .preview-wrap {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      aspect-ratio: 16/10; position: relative;
+    }
+    .preview-inner {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      display: grid; grid-template-columns: 200px 1fr; grid-template-rows: 38px 1fr;
+    }
+    .p-titlebar {
+      grid-column: 1/-1;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px; padding: 0 14px;
+    }
+    .p-tb-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .p-tb-name { margin-left: 4px; font-family: var(--serif); font-size: 12px; font-weight: 500; color: var(--fg2); }
+    .p-tb-title { font-size: 12px; color: var(--fg3); margin-left: 2px; }
+    .p-sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 10px 0; }
+    .p-nb { display: flex; align-items: center; gap: 6px; padding: 5px 12px; font-size: 11px; cursor: default; }
+    .p-nb-icon { font-size: 10px; }
+    .p-nb.active { background: var(--bg3); border-radius: 4px; margin: 0 4px; padding: 5px 8px; }
+    .p-nb-label { color: var(--fg2); }
+    .p-nb.active .p-nb-label { color: var(--fg); font-weight: 500; }
+    .p-section { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--fg3); padding: 12px 12px 4px; }
+    .p-editor { padding: 20px 28px; overflow: hidden; }
+    .p-title { font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--fg); margin-bottom: 14px; }
+    .p-line { height: 9px; background: var(--border); border-radius: 3px; margin-bottom: 8px; }
+    .p-line.short { width: 72%; }
+    .p-line.shorter { width: 55%; }
+    .p-line.full { width: 100%; }
+
+    /* ── Features ── */
+    .section { padding: 80px 48px; max-width: 1160px; margin: 0 auto; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+    h2 { font-family: var(--serif); font-size: clamp(28px, 3.5vw, 42px); font-weight: 400; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 48px; }
+    h2 em { font-style: italic; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .feature-card {
+      background: var(--bg2); padding: 32px 28px; border: 1px solid var(--border);
+      transition: background .15s;
+    }
+    .feature-card:hover { background: var(--bg3); }
+    .feature-num { font-family: var(--mono); font-size: 11px; color: var(--fg3); margin-bottom: 16px; }
+    .feature-title { font-family: var(--serif); font-size: 20px; font-weight: 400; margin-bottom: 10px; color: var(--fg); }
+    .feature-body { font-size: 14px; color: var(--fg2); line-height: 1.65; }
+
+    /* ── Quote ── */
+    .quote-section {
+      background: var(--fg); color: var(--bg);
+      padding: 80px 48px; text-align: center;
+    }
+    .quote-section blockquote { font-family: var(--serif); font-size: clamp(22px, 3vw, 36px); font-weight: 300; font-style: italic; line-height: 1.4; max-width: 760px; margin: 0 auto 20px; }
+    .quote-attr { font-size: 13px; opacity: .5; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+
+    /* ── Open source / donate ── */
+    .oss-section { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--border); }
+    .oss-panel { background: var(--bg); padding: 56px 48px; }
+    .oss-panel h3 { font-family: var(--serif); font-size: 28px; font-weight: 400; margin-bottom: 14px; }
+    .oss-panel p { font-size: 15px; color: var(--fg2); line-height: 1.65; margin-bottom: 28px; max-width: 420px; }
+    .gh-icon { display: inline-block; margin-right: 6px; vertical-align: -2px; }
+
+    /* ── Download CTA ── */
+    .cta-section {
+      max-width: 1160px; margin: 0 auto; padding: 96px 48px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+    .cta-section h2 { margin-bottom: 16px; }
+    .cta-section .lede { text-align: center; }
+    .cta-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-top: 40px; }
+    .platforms { margin-top: 16px; font-size: 12px; color: var(--fg3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; display: flex; gap: 10px; align-items: center; }
+    .platforms span:nth-child(even) { opacity: .4; }
+
+    /* ── Footer ── */
+    footer { border-top: 1px solid var(--border); padding: 40px 48px; display: flex; align-items: center; gap: 24px; }
+    .footer-logo { font-family: var(--serif); font-size: 15px; font-weight: 500; color: var(--fg); display: flex; align-items: center; gap: 8px; }
+    footer .spacer { flex: 1; }
+    footer p { font-size: 13px; color: var(--fg3); }
+    footer a { font-size: 13px; color: var(--fg2); text-decoration: none; }
+    footer a:hover { color: var(--fg); }
+
+    /* ── Animations ── */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .hero > * { animation: fadeUp .6s ease both; }
+    .hero > *:nth-child(2) { animation-delay: .1s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; padding: 60px 24px 48px; gap: 40px; }
+      .preview-wrap { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .oss-section { grid-template-columns: 1fr; }
+      .section { padding: 56px 24px; }
+      nav { padding: 0 24px; }
+      footer { flex-direction: column; align-items: flex-start; gap: 12px; padding: 32px 24px; }
+      .cta-section { padding: 64px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <img src="data:image/x-icon;base64,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9f/w9PX/8PT1//D09f/w9PX/8PT1//P3+P/JzM3/HB0d/wkJCf8KCgr/CgoK/woKCv8KCgrZCgoK8goKCv8KCgr/CgoK/woKCv8QEBD/rbCw//T4+f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/9Pj5/6irq/8ODw//CgoK/woKCv8KCgr/CgoK/woKCvIKCgr9CgoK/woKCv8KCgr/CgoK/wcHB/9ucHD/8fX2//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/aWpr/wcHB/8KCgr/CgoK/woKCv8KCgr/CgoK/QoKCv0KCgr/CgoK/woKCv8KCgr/CAgI/yYnJ//Lz9D/8/f4//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8/f4/8jLzP8jJCT/CAgI/woKCv8KCgr/CgoK/woKCv8KCgr9CgoK8goKCv8KCgr/CgoK/woKCv8KCgr/CAgI/2ZoaP/s8PH/8fX2//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//H19v/r7/D/YmRk/wgICP8KCgr/CgoK/woKCv8KCgr/CgoK/woKCvIKCgrZCgoK/woKCv8KCgr/CgoK/woKCv8JCQn/EhIS/5iam//y9vf/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8vb3/5SXl/8RERH/CQkJ/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK2QoKCqwKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8ICAj/ICEh/6+ys//z9/j/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//P3+P+tsLD/Hx8f/wgICP8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgqsCgoKbAoKCvsKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8ICAj/KCkp/7W4uf/z9/j/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/z9/j/s7a3/ycnJ/8ICAj/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK+woKCmwKCgopCgoK3goKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8HBwf/KCkp/7Azs//y9vf/8fX1//L19f/y9fX/8vX1//L19f/x9fX/8vb3/66xsv8nJyf/BwcH/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgreCgoKKQoKCgIKCgqWCgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8HBwf/IiIi/6Wnp//n8PT/zuTv/83j7v/N4+7/zuTv/+fw9P+jpqb/ISEi/wgIB/8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCpYKCgoCCgoKAAoKCjcKCgrpCgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8ICAj/HBwc/4iTmP9yt93/UqjY/1Ko2P9yt93/h5GX/xsbG/8ICAj/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgrpCgoKNwoKCgAKCgoACgoKAgoKCokKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8ICAj/GRgX/1t7jP9Pptb/T6bW/1t6i/8YFxf/CAgI/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCokKCgoCCgoKAAAAAAAKCgoACgoKGgoKCsIKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8JCAj/FBYX/z11lP89dZP/FBYX/wkICP8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgrCCgoKGgoKCgAAAAAAAAAAAAoKCgAKCgoACgoKNgoKCtkKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8JCAj/Ehsh/xIbIf8JCAj/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK2QoKCjYKCgoACgoKAAAAAAAAAAAAAAAAAAoKCgAKCgoACgoKQgoKCtkKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCQn/CgkJ/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCtkKCgpCCgoKAAoKCgAAAAAAAAAAAAAAAAAAAAAAAAAAAAoKCgAKCgoACgoKNgoKCsIKCgr+CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv4KCgrCCgoKNgoKCgAKCgoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoKCgAKCgoACgoKGgoKCokKCgrqCgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgrqCgoKiQoKChoKCgoACgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKCgoACgoKAwoKCjYKCgqXCgoK3woKCvsKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCvsKCgrfCgoKlwoKCjYKCgoDCgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACgoKAAoKCgQKCgopCgoKbAoKCqwKCgrZCgoK8goKCv0KCgr9CgoK8goKCtkKCgqsCgoKbAoKCikKCgoECgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" alt="SpadeNotes"/>
+    <span>SpadeNotes</span>
+  </a>
+  <span class="spacer"></span>
+  <a class="nav-link" href="#features">Features</a>
+  <a class="nav-link" href="#open-source">Open Source</a>
+  <a class="btn btn-primary" href="#download">Download</a>
+</nav>
+
+<!-- HERO -->
+<section>
+  <div class="hero">
+    <div>
+      <div class="pill"><span class="pill-dot"></span>v0.1 · Early Access</div>
+      <h1>Notes the way they <em>used to be.</em></h1>
+      <p class="lede">A quiet desktop notebook for people who write more than they configure. No accounts. No syncing dialogs. No subscriptions. Just paper.</p>
+      <div class="hero-actions">
+        <a class="btn btn-accent btn-lg" href="#download">↓ Download for Windows</a>
+        <a class="btn btn-outline btn-lg" href="https://github.com/namikkaya/SpadeNotes" target="_blank">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+      <div class="hero-meta">
+        <span>🆓 Free</span>
+        <span>·</span>
+        <span>🔓 Open Source</span>
+        <span>·</span>
+        <span>💾 Local-first</span>
+        <span>·</span>
+        <span>🪟 Windows</span>
+      </div>
+    </div>
+
+    <!-- App Preview -->
+    <div class="preview-wrap">
+      <div class="preview-inner">
+        <div class="p-titlebar">
+          <div class="p-tb-dot" style="background:#ff5f57"></div>
+          <div class="p-tb-dot" style="background:#febc2e;margin-left:5px"></div>
+          <div class="p-tb-dot" style="background:#28c840;margin-left:5px"></div>
+          <span class="p-tb-name">SpadeNotes</span>
+          <span class="p-tb-title">— EU Law Seminar</span>
+        </div>
+        <div class="p-sidebar">
+          <div class="p-section">Pinned</div>
+          <div class="p-nb active">
+            <span class="p-nb-icon">📌</span>
+            <span class="p-nb-label">EU Law Seminar</span>
+          </div>
+          <div class="p-section">Notebooks</div>
+          <div class="p-nb active">
+            <span class="p-nb-icon">📁</span>
+            <span class="p-nb-label" style="color:var(--fg);font-weight:500">EU Law Seminar</span>
+          </div>
+          <div class="p-nb">
+            <span class="p-nb-icon">📁</span>
+            <span class="p-nb-label">Research</span>
+          </div>
+          <div class="p-nb">
+            <span class="p-nb-icon">📁</span>
+            <span class="p-nb-label">Personal</span>
+          </div>
+        </div>
+        <div class="p-editor">
+          <div class="p-title">Article 50 TEU — Analysis</div>
+          <div class="p-line full"></div>
+          <div class="p-line full"></div>
+          <div class="p-line short"></div>
+          <div class="p-line full" style="margin-top:12px"></div>
+          <div class="p-line full"></div>
+          <div class="p-line shorter"></div>
+          <div class="p-line full" style="margin-top:12px"></div>
+          <div class="p-line full"></div>
+          <div class="p-line full"></div>
+          <div class="p-line short"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<div class="quote-section">
+  <blockquote>"Elegant. Sharp. Simple. Notes the way they used to be."</blockquote>
+  <p class="quote-attr">SpadeNotes · v0.1 Early Access</p>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label">Features</div>
+  <h2>Everything you need.<br/><em>Nothing you don't.</em></h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-num">01</div>
+      <div class="feature-title">Instant capture</div>
+      <p class="feature-body">Open, write, close. No syncing dialogs, no upsells. SpadeNotes opens in milliseconds and gets out of your way.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">02</div>
+      <div class="feature-title">Rich text editor</div>
+      <p class="feature-body">Headings, bold, italic, links, checklists, code blocks, images, and citations — everything a student or researcher needs.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">03</div>
+      <div class="feature-title">Local-first</div>
+      <p class="feature-body">Your notes live as plain files on your machine. No cloud. No account. No subscription. Always yours.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">04</div>
+      <div class="feature-title">Calendar built-in</div>
+      <p class="feature-body">See your dated notes on a calendar. Add quick notes to any date. No separate planner needed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">05</div>
+      <div class="feature-title">Notebooks & folders</div>
+      <p class="feature-body">Organize notes into nested notebooks. Drag and drop to rearrange. Color-coded for quick scanning.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">06</div>
+      <div class="feature-title">A4 page canvas</div>
+      <p class="feature-body">Write on a real A4 page with proper margins. Export to PDF exactly as it looks. Perfect for seminar papers.</p>
+    </div>
+  </div>
+</section>
+
+<!-- OPEN SOURCE / DONATE -->
+<div class="oss-section" id="open-source">
+  <div class="oss-panel">
+    <h3>Free &amp; Open Source</h3>
+    <p>SpadeNotes is completely free and open source. Built by a law student who wanted a calmer way to take notes. The code is on GitHub — read it, fork it, contribute to it.</p>
+    <a class="btn btn-outline" href="https://github.com/namikkaya/SpadeNotes" target="_blank">
+      <svg class="gh-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+      View on GitHub
+    </a>
+  </div>
+  <div class="oss-panel" style="background: var(--bg2)">
+    <h3>Buy me a coffee ☕</h3>
+    <p>SpadeNotes is and will always be free. If it saves you time during exam season, consider supporting development with a small donation.</p>
+    <a class="btn btn-accent" href="https://buymeacoffee.com" target="_blank">Support the project</a>
+  </div>
+</div>
+
+<!-- DOWNLOAD CTA -->
+<section class="cta-section" id="download">
+  <div class="section-label">Download</div>
+  <h2>Start writing,<br/><em>right now.</em></h2>
+  <p class="lede">SpadeNotes is free. No account needed. Just download and open.</p>
+  <div class="cta-actions">
+    <a class="btn btn-accent btn-xl" href="#" id="dl-btn">↓ Download for Windows <span style="font-size:12px;opacity:.7;font-family:var(--mono);margin-left:4px">v0.1</span></a>
+    <a class="btn btn-outline btn-xl" href="https://github.com/namikkaya/SpadeNotes" target="_blank">View source on GitHub</a>
+  </div>
+  <div class="platforms">
+    <span>Windows 10/11</span><span>·</span><span>macOS (coming soon)</span><span>·</span><span>64-bit</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <img src="data:image/x-icon;base64,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9f/w9PX/8PT1//D09f/w9PX/8PT1//P3+P/JzM3/HB0d/wkJCf8KCgr/CgoK/woKCv8KCgrZCgoK8goKCv8KCgr/CgoK/woKCv8QEBD/rbCw//T4+f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/9Pj5/6irq/8ODw//CgoK/woKCv8KCgr/CgoK/woKCvIKCgr9CgoK/woKCv8KCgr/CgoK/wcHB/9ucHD/8fX2//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/aWpr/wcHB/8KCgr/CgoK/woKCv8KCgr/CgoK/QoKCv0KCgr/CgoK/woKCv8KCgr/CAgI/yYnJ//Lz9D/8/f4//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8/f4/8jLzP8jJCT/CAgI/woKCv8KCgr/CgoK/woKCv8KCgr9CgoK8goKCv8KCgr/CgoK/woKCv8KCgr/CAgI/2ZoaP/s8PH/8fX2//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//H19v/r7/D/YmRk/wgICP8KCgr/CgoK/woKCv8KCgr/CgoK/woKCvIKCgrZCgoK/woKCv8KCgr/CgoK/woKCv8JCQn/EhIS/5iam//y9vf/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8vb3/5SXl/8RERH/CQkJ/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK2QoKCqwKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8ICAj/ICEh/6+ys//z9/j/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//P3+P+tsLD/Hx8f/wgICP8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgqsCgoKbAoKCvsKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8ICAj/KCkp/7W4uf/z9/j/8PT1//D09f/w9PX/8PT1//D09f/w9PX/8PT1//D09f/z9/j/s7a3/ycnJ/8ICAj/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK+woKCmwKCgopCgoK3goKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8HBwf/KCkp/7Azs//y9vf/8fX1//L19f/y9fX/8vX1//L19f/x9fX/8vb3/66xsv8nJyf/BwcH/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgreCgoKKQoKCgIKCgqWCgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8HBwf/IiIi/6Wnp//n8PT/zuTv/83j7v/N4+7/zuTv/+fw9P+jpqb/ISEi/wgIB/8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCpYKCgoCCgoKAAoKCjcKCgrpCgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8ICAj/HBwc/4iTmP9yt93/UqjY/1Ko2P9yt93/h5GX/xsbG/8ICAj/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgrpCgoKNwoKCgAKCgoACgoKAgoKCokKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8ICAj/GRgX/1t7jP9Pptb/T6bW/1t6i/8YFxf/CAgI/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCokKCgoCCgoKAAAAAAAKCgoACgoKGgoKCsIKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8JCAj/FBYX/z11lP89dZP/FBYX/wkICP8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgrCCgoKGgoKCgAAAAAAAAAAAAoKCgAKCgoACgoKNgoKCtkKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8JCAj/Ehsh/xIbIf8JCAj/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK2QoKCjYKCgoACgoKAAAAAAAAAAAAAAAAAAoKCgAKCgoACgoKQgoKCtkKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCQn/CgkJ/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCtkKCgpCCgoKAAoKCgAAAAAAAAAAAAAAAAAAAAAAAAAAAAoKCgAKCgoACgoKNgoKCsIKCgr+CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv4KCgrCCgoKNgoKCgAKCgoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoKCgAKCgoACgoKGgoKCokKCgrqCgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgrqCgoKiQoKChoKCgoACgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKCgoACgoKAwoKCjYKCgqXCgoK3woKCvsKCgr/CgoK/woKCv8KCgr/CgoK/woKCv8KCgr/CgoK/woKCvsKCgrfCgoKlwoKCjYKCgoDCgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACgoKAAoKCgQKCgopCgoKbAoKCqwKCgrZCgoK8goKCv0KCgr9CgoK8goKCtkKCgqsCgoKbAoKCikKCgoECgoKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" alt="" style="width:18px;height:18px;object-fit:contain"/>
+    SpadeNotes
+  </div>
+  <span class="spacer"></span>
+  <p>© 2026 Namik Kaya · Free & Open Source</p>
+  <a href="https://github.com/namikkaya/SpadeNotes" target="_blank">GitHub</a>
+</footer>
+
+<script>
+  // Update GitHub link when you know your repo URL
+  document.querySelectorAll('a[href="https://github.com/namikkaya/SpadeNotes"]').forEach(a => {
+    // Replace with your actual GitHub URL
+  });
+</script>
+</body>
+</html>

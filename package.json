@@ -1,0 +1,97 @@
+{
+  "name": "spadenotes",
+  "version": "0.1.0-early-access",
+  "description": "SpadeNotes — a calm, focused note-taking application",
+  "main": "electron/main.js",
+  "author": "Namik Kaya",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:vite\" \"npm:dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .",
+    "build": "vite build",
+    "pack": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --win",
+    "start": "electron ."
+  },
+  "build": {
+    "appId": "com.namikkaya.spadenotes",
+    "productName": "SpadeNotes",
+    "copyright": "Copyright 2026 Namik Kaya",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "assets/**/*"
+    ],
+    "extraResources": [
+      { "from": "assets/", "to": "assets/" }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/spade-notes-logo.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "installerIcon": "assets/spade-notes-logo.ico",
+      "uninstallerIcon": "assets/spade-notes-logo.ico",
+      "installerHeaderIcon": "assets/spade-notes-logo.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SpadeNotes",
+      "differentialPackage": false
+    },
+    "publish": null
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^42.0.0",
+    "electron-builder": "^26.8.1",
+    "vite": "^8.0.11",
+    "wait-on": "^9.0.5"
+  },
+  "dependencies": {
+    "@fontsource/fraunces": "^5.1.1",
+    "@fontsource/inter": "^5.1.1",
+    "@fontsource/jetbrains-mono": "^5.1.1",
+    "@tiptap/extension-character-count": "^3.22.5",
+    "@tiptap/extension-color": "^3.22.5",
+    "@tiptap/extension-highlight": "^3.22.5",
+    "@tiptap/extension-image": "^3.22.5",
+    "@tiptap/extension-link": "^3.22.5",
+    "@tiptap/extension-placeholder": "^3.22.5",
+    "@tiptap/extension-strike": "^3.22.5",
+    "@tiptap/extension-task-item": "^3.22.5",
+    "@tiptap/extension-task-list": "^3.22.5",
+    "@tiptap/extension-text-align": "^3.22.5",
+    "@tiptap/extension-text-style": "^3.22.5",
+    "@tiptap/extension-typography": "^3.22.5",
+    "@tiptap/extension-underline": "^3.22.5",
+    "@tiptap/pm": "^3.22.5",
+    "@tiptap/react": "^3.22.5",
+    "@tiptap/starter-kit": "^3.22.5",
+    "docx": "^9.6.1",
+    "lucide-react": "^1.14.0",
+    "pdf-lib": "^1.17.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "trash": "^10.1.1"
+  }
+}
