@@ -11,6 +11,7 @@
     "build": "vite build",
     "pack": "npm run build && electron-builder",
     "dist": "npm run build && electron-builder --win",
+    "dist-mac": "npm run build && electron-builder --mac",
     "start": "electron ."
   },
   "build": {
@@ -55,6 +56,17 @@
       "createStartMenuShortcut": true,
       "shortcutName": "SpadeNotes",
       "differentialPackage": false
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ],
+      "icon": "assets/spade-notes-logo.icns",
+      "category": "public.app-category.productivity"
+    },
+    "dmg": {
+      "title": "SpadeNotes",
+      "icon": "assets/spade-notes-logo.icns"
     },
     "publish": null
   },
