@@ -1,6 +1,6 @@
 <div align="center">
   <h1>♠ SpadeNotes</h1>
-  <p><strong>A calm, focused note-taking app for students and researchers.</strong></p>
+  <p><strong>A calm, focused and SIMPLE note-taking app for students.</strong></p>
   <p>Free · Open Source · Local-first · No accounts · No subscriptions</p>
 
   <br/>
