@@ -2,16 +2,15 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './theme.css';
 import Titlebar          from './components/Titlebar.jsx';
 import ActionBar         from './components/ActionBar.jsx';
-import Sidebar, { moveToTrash, restoreFromTrash, restoreFromArchive } from './components/Sidebar.jsx';
+import Sidebar, { moveToTrash, restoreFromTrash } from './components/Sidebar.jsx';
 import Editor            from './components/Editor.jsx';
 import StatusBar         from './components/StatusBar.jsx';
 import Calendar          from './components/Calendar.jsx';
-import FeaturesAboutDialog from './components/FeaturesAboutDialog.jsx';
 import SearchPanel       from './components/SearchPanel.jsx';
 import SettingsDialog    from './components/Dialogs/SettingsDialog.jsx';
 import SetupWizard       from './components/Dialogs/SetupWizard.jsx';
 import NewNotebookDialog, { NewNoteDialog } from './components/Dialogs/NewNotebookDialog.jsx';
-import { loadNotebooks, loadNote, saveNote, createNotebook, createNote, deleteNote, deleteNotebook, renameNote, renameNotebook, createSubNotebook, moveNote, moveNotebook, getNotesDir } from './storage/notes.js';
+import { loadNotebooks, loadNote, saveNote, createNotebook, createNote, deleteNote, deleteNotebook } from './storage/notes.js';
 import { getSettings, saveSettings } from './storage/settings.js';
 
 const DEFAULT_SETTINGS = {
@@ -33,7 +32,6 @@ export default function App() {
   const [readMode,     setReadMode]     = useState(false);
   const [wordCount,    setWordCount]    = useState(0);
   const [charCount,    setCharCount]    = useState(0);
-  const [pageInfo,     setPageInfo]     = useState({ current: 1, total: 1 });
   const [saveStatus,   setSaveStatus]   = useState('Saved');
   const [showNewNb,    setShowNewNb]    = useState(false);
   const [showNewNote,  setShowNewNote]  = useState(false);
@@ -44,7 +42,6 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showComments,     setShowComments]     = useState(false);
   const [showCitations,    setShowCitations]    = useState(false);
-  const [showHelp,         setShowHelp]         = useState(false);
 
   const editorRef = useRef(null);
 
@@ -75,11 +72,7 @@ export default function App() {
   }, []);
 
   function applySettings(s) {
-    if ((s.theme ?? 'light') === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.setAttribute('data-theme', s.theme ?? 'light');
     document.documentElement.style.setProperty('--editor-font-size', s.fontSize ?? '15px');
   }
 
@@ -170,70 +163,7 @@ export default function App() {
 
   async function handleRestoreFromTrash(item) {
     restoreFromTrash(item);
-    // File is still on disk — just remove from trash list and refresh
     await refreshNotebooks();
-  }
-
-  async function handleRestoreFromArchive(item) {
-    restoreFromArchive(item);
-    // File is still on disk — just remove from archive list and refresh
-    // Also open the note if it's a note type
-    await refreshNotebooks();
-    if (item.type === 'note' && item.path) {
-      const content = await loadNote(item.path);
-      setActiveNote({ ...item, content: content?.content ?? '' });
-      setView('editor');
-    }
-  }
-
-  async function handleHideNote(note) {
-    // Called when note is moved to trash or archive — just refresh sidebar
-    // Do NOT delete from disk
-    if (activeNote?.path === note.path) setActiveNote(null);
-    await refreshNotebooks();
-  }
-
-  async function handleDeleteNote(note) {
-    const ok = await deleteNote(note.path);
-    if (ok) {
-      if (activeNote?.path === note.path) setActiveNote(null);
-      await refreshNotebooks();
-    }
-  }
-
-  async function handleRenameNote(note, newName) {
-    const ok = await renameNote(note.path, newName);
-    if (ok) {
-      if (activeNote?.path === note.path) setActiveNote(n => ({ ...n, name: newName }));
-      await refreshNotebooks();
-    }
-  }
-
-  async function handleRenameNotebook(nb, newName) {
-    const r = await renameNotebook(nb.path, newName);
-    if (r.ok) await refreshNotebooks();
-  }
-
-  async function handleCreateSubNotebook(parentNb, name) {
-    await createSubNotebook(parentNb.path, name);
-    await refreshNotebooks();
-  }
-
-  async function handleMoveNote(note, targetNb) {
-    const r = await moveNote(note.path, targetNb.path);
-    if (r.ok) {
-      if (activeNote?.path === note.path) setActiveNote(n => ({ ...n, path: r.newPath }));
-      await refreshNotebooks();
-    }
-  }
-
-  async function handleMoveNotebook(nb, targetNb) {
-    let targetPath = targetNb.path;
-    if (targetPath === '__root__') {
-      targetPath = await getNotesDir();
-    }
-    const r = await moveNotebook(nb.path, targetPath);
-    if (r.ok) await refreshNotebooks();
   }
 
   async function handlePermanentDelete(item) {
@@ -256,14 +186,13 @@ export default function App() {
       {showSearch   && <SearchPanel notebooks={notebooks} onNoteSelect={handleNoteSelect} onClose={() => setShowSearch(false)} />}
       {showNewNb    && <NewNotebookDialog onConfirm={handleCreateNotebook} onCancel={() => setShowNewNb(false)} />}
       {showNewNote  && <NewNoteDialog notebooks={notebooks} defaultNotebook={newNoteNb} onConfirm={handleCreateNote} onCancel={() => { setShowNewNote(false); setNewNoteNb(null); }} />}
-      {showHelp     && <FeaturesAboutDialog onClose={() => setShowHelp(false)} />}
 
       <Titlebar title={titlebarTitle} theme={appSettings.theme} onToggleTheme={toggleTheme} />
 
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         {/* Resizable sidebar — collapsed = 48px icon strip, expanded = sidebarWidth */}
-        <div style={{ display: 'flex', flexShrink: 0, position: 'relative', width: sidebarCollapsed ? 48 : sidebarWidth, transition: 'width 0.15s', overflow: 'hidden' }}>
-          <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flexShrink: 0, position: 'relative', width: sidebarCollapsed ? 48 : sidebarWidth, transition: 'width 0.15s' }}>
+          <div style={{ width: '100%', overflow: 'hidden' }}>
             <Sidebar
               activeTab={activeTab}
               onTabChange={handleTabChange}
@@ -274,22 +203,13 @@ export default function App() {
               onNewNotebook={() => setShowNewNb(true)}
               onOpenSettings={() => setShowSettings(true)}
               onOpenSearch={() => setShowSearch(true)}
-              onOpenHelp={() => setShowHelp(true)}
               onDeleteNotebook={handleDeleteNotebook}
               onAddNoteToNotebook={handleAddNoteToNotebook}
-              onDeleteNote={handleDeleteNote}
-              onRenameNote={handleRenameNote}
-              onHideNote={handleHideNote}
-              onRenameNotebook={handleRenameNotebook}
-              onCreateSubNotebook={handleCreateSubNotebook}
-              onMoveNote={handleMoveNote}
-              onMoveNotebook={handleMoveNotebook}
               recents={recents}
               pinned={pinned}
               onTogglePinned={handleTogglePinned}
               onRestoreFromTrash={handleRestoreFromTrash}
               onPermanentDelete={handlePermanentDelete}
-              onRestoreFromArchive={handleRestoreFromArchive}
               showNotebookColors={appSettings.showNotebookColors !== false}
               collapsed={sidebarCollapsed}
               onToggleCollapse={() => setSidebarCollapsed(s => !s)}
@@ -329,13 +249,11 @@ export default function App() {
               <Editor
                 note={activeNote}
                 onWordCount={(w, c) => { setWordCount(w); setCharCount(c); }}
-                onPageInfo={setPageInfo}
                 onSave={handleSave}
                 setSaveStatus={setSaveStatus}
                 editorRef={editorRef}
                 spellCheck={appSettings.spellCheck}
                 fontSize={appSettings.fontSize}
-                pageMargin={appSettings.pageMargin}
                 showComments={showComments}
                 onToggleComments={() => setShowComments(s => !s)}
                 showCitations={showCitations}
@@ -350,7 +268,6 @@ export default function App() {
         wordCount={view === 'editor' ? wordCount : 0}
         charCount={view === 'editor' ? charCount : 0}
         saveStatus={view === 'editor' ? saveStatus : ''}
-        pageInfo={view === 'editor' ? pageInfo : null}
         spellCheck={appSettings.spellCheck}
         onToggleSpellCheck={() => handleSaveSettings({ spellCheck: !appSettings.spellCheck })}
         language={appSettings.language}

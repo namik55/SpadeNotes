@@ -244,7 +244,6 @@ const makeStyles=fontSize=>`
   .tiptap-editor .ProseMirror { outline: none !important; }
   .ProseMirror{outline:none !important;box-shadow:none !important;border:none !important;}
   .ProseMirror:focus{outline:none !important;}
-  .page-break-spacer { display: block; width: 100%; pointer-events: none; user-select: none; }
   .tiptap-editor h1{font-family:var(--serif);font-weight:500;font-size:36px;line-height:1.15;letter-spacing:-0.02em;margin:0 0 6px;}
   .tiptap-editor h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:28px 0 10px;}
   .tiptap-editor h3{font-family:var(--serif);font-weight:500;font-size:20px;margin:22px 0 8px;}
@@ -273,15 +272,6 @@ const makeStyles=fontSize=>`
   @keyframes cite-flash{0%,100%{background:transparent}40%{background:var(--bg-active)}}
   .cite-highlight{animation:cite-flash 1.2s ease;border-radius:4px;}
 
-  /* A4 page break ruler */
-  .canvas-page::after{
-    content:'';
-    display:block;
-    clear:both;
-  }
-  .tiptap-editor{
-    min-height:100%;
-  }
 `;
 
 // ── Title block ────────────────────────────────────────────────────────────
@@ -417,7 +407,6 @@ export default function Editor({
   showComments, onToggleComments,
   showCitations, onToggleCitations,
   statusBar = null,
-  onPageInfo,
   pageMargin = { top: 96, bottom: 96, left: 110, right: 110 },
 }) {
   const [zoom,setZoom]=useState(100);
@@ -587,92 +576,16 @@ export default function Editor({
     }
   }
 
-  const { outerPad, pageWidth, pageHeight, padTop, padBottom, padLeft, padRight } = useMemo(()=>({
-    outerPad:   Math.round(28*zoom/100),
+  const { outerPad, pageWidth, padTop, padBottom, padLeft, padRight } = useMemo(()=>({
+    outerPad:   Math.round(32*zoom/100),
     pageWidth:  Math.round(794*zoom/100),
-    pageHeight: Math.round(1123*zoom/100),
     padTop:     Math.round((pageMargin.top    ?? 96)  * zoom/100),
     padBottom:  Math.round((pageMargin.bottom ?? 96)  * zoom/100),
     padLeft:    Math.round((pageMargin.left   ?? 110) * zoom/100),
     padRight:   Math.round((pageMargin.right  ?? 110) * zoom/100),
   }),[zoom, pageMargin]);
 
-  const pageRef = useRef(null);
-  const canvasBgRef = useRef(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages,  setTotalPages]  = useState(1);
 
-  useEffect(() => {
-    if (!canvasBgRef.current || !pageHeight) return;
-    const el = canvasBgRef.current;
-    function update() {
-      const h = el.scrollHeight;
-      setTotalPages(Math.max(1, Math.ceil(h / pageHeight)));
-    }
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    // Also observe the page content div
-    if (pageRef.current) observer.observe(pageRef.current);
-    return () => observer.disconnect();
-  }, [pageHeight, note?.path]);
-
-  const pageGap = Math.round(32*zoom/100);
-
-  // Inject spacer divs into the editor DOM at each page break to push text past gray bands
-  useEffect(() => {
-    if (!pageRef.current || !pageHeight || !pageGap) return;
-    const container = pageRef.current;
-
-    function updateSpacers() {
-      // Remove old spacers
-      container.querySelectorAll('.page-break-spacer').forEach(el => el.remove());
-
-      const totalH = container.scrollHeight;
-      const pages = Math.ceil(totalH / pageHeight);
-      if (pages <= 1) return;
-
-      // Find all text nodes/elements and insert spacers at page boundaries
-      for (let p = 1; p < pages; p++) {
-        const breakY = p * pageHeight; // Y position of break in container
-        // Find the element closest to this Y position
-        const elements = Array.from(container.querySelectorAll('p, h1, h2, h3, h4, li, blockquote, pre, div.tiptap-editor > *'));
-        for (const el of elements) {
-          const rect = el.getBoundingClientRect();
-          const containerRect = container.getBoundingClientRect();
-          const elTop = rect.top - containerRect.top + container.scrollTop;
-          const elBottom = elTop + rect.height;
-          // If this element straddles the break point
-          if (elTop < breakY && elBottom > breakY) {
-            const spacer = document.createElement('div');
-            spacer.className = 'page-break-spacer';
-            spacer.style.height = `${pageGap + (breakY - elTop)}px`;
-            spacer.style.display = 'block';
-            spacer.contentEditable = 'false';
-            el.after(spacer);
-            break;
-          }
-        }
-      }
-    }
-
-    const t = setTimeout(updateSpacers, 100);
-    return () => clearTimeout(t);
-  }, [totalPages, pageHeight, pageGap]);
-
-  useEffect(() => {
-    onPageInfo?.({ current: currentPage, total: totalPages });
-  }, [currentPage, totalPages]);
-
-  function handleCanvasBgScroll() {
-    if (!canvasBgRef.current || !pageHeight) return;
-    const scrollTop = canvasBgRef.current.scrollTop;
-    setCurrentPage(Math.min(totalPages, Math.floor(scrollTop / pageHeight) + 1));
-  }
-
-  const handleCanvasClick = useCallback((e) => {
-    if(editor&&(e.target.classList.contains('canvas-bg')||e.target.classList.contains('canvas-page')))editor.commands.focus('end');
-  },[editor]);
 
   return(
     <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:0}}>
@@ -686,43 +599,26 @@ export default function Editor({
       <div style={{display:'flex',flex:1,minHeight:0}}>
         {/* Canvas column — takes flex:1, StatusBar sits at its bottom */}
         <div style={{display:'flex',flexDirection:'column',flex:1,minWidth:0,minHeight:0}}>
-          <div ref={canvasBgRef} className="canvas-bg" onClick={handleCanvasClick} onScroll={handleCanvasBgScroll}
+          <div className="canvas-bg"
             style={{
               flex:1, overflowY:'auto', overflowX:'auto',
               background:'var(--bg-sunken)',
               display:'flex', flexDirection:'column', alignItems:'center',
               padding:`${outerPad}px`,
               cursor:'text',
-              gap: Math.round(12*zoom/100),
             }}>
-            <div ref={pageRef} className="canvas-page"
+            <div className="canvas-page"
               style={{
                 width: pageWidth,
                 flexShrink: 0,
                 background:'var(--bg)',
                 border:'1px solid var(--border)',
-                borderRadius: 0,
+                borderRadius: 2,
                 padding:`${padTop}px ${padRight}px ${padBottom}px ${padLeft}px`,
                 boxShadow:'0 2px 8px rgba(0,0,0,0.12)',
                 boxSizing:'border-box',
-                minHeight: pageHeight,
-                position:'relative',
+                minHeight: Math.round(500*zoom/100),
               }}>
-              {/* Page break overlays — gray bars at each page boundary */}
-              {Array.from({length: totalPages - 1}).map((_, i) => (
-                <div key={i} style={{
-                  position: 'absolute',
-                  left: -1, right: -1,
-                  top: (i + 1) * pageHeight,
-                  height: pageGap,
-                  background: 'var(--bg-sunken)',
-                  borderTop: '2px solid var(--border-strong)',
-                  borderBottom: '2px solid var(--border-strong)',
-                  pointerEvents: 'none',
-                  zIndex: 10,
-                }}/>
-              ))}
-              {/* Actual content */}
               {note?(
                 <><TitleBlock note={note} zoom={zoom}/><EditorContent editor={editor} className="tiptap-editor"/></>
               ):(
