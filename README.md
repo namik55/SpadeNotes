@@ -31,7 +31,7 @@ Built by a law student doing a Master's in European Law. Born out of frustration
 
 | Platform | File | Notes |
 |----------|------|-------|
-| **Windows 10/11** | [SpadeNotes.exe]((https://github.com/namik55/SpadeNotes/releases/download/v0.1/win-unpacked.rar)) | 64-bit installer |
+| **Windows 10/11** | [SpadeNotes.exe](https://github.com/namik55/SpadeNotes/releases/download/v0.1/win-unpacked.rar) | 64-bit installer |
 
 
 > **Windows Defender warning:** Since SpadeNotes is not code-signed yet, Windows may show an "Unknown publisher" warning. Click **More info → Run anyway** to proceed. This is normal for open source apps without a paid certificate.
