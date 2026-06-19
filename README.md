@@ -25,15 +25,6 @@ Built by a law student doing a Master's in European Law. Born out of frustration
 <img width="1919" height="1020" alt="calendar 2" src="https://github.com/user-attachments/assets/8d7f23bc-cb91-4367-bcde-a7b0ac8cc184" />
 
 
----
-
-## Download
-
-| Platform | File | Notes |
-|----------|------|-------|
-| **Windows 10/11** | [SpadeNotes.exe](https://github.com/namik55/SpadeNotes/releases/download/v0.1/win-unpacked.rar) | 64-bit installer |
-
-
 > **Windows Defender warning:** Since SpadeNotes is not code-signed yet, Windows may show an "Unknown publisher" warning. Click **More info → Run anyway** to proceed. This is normal for open source apps without a paid certificate.
 
 ---
