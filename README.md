@@ -13,6 +13,11 @@
 
 ---
 
+
+[Windows için indir](https://github.com/namik55/SpadeNotes/releases/latest/download/SpadeNotes-Setup.exe)
+
+
+
 ## What is SpadeNotes?
 
 SpadeNotes is a desktop note-taking app built for students who find tools like Microsoft Word too complex and Notion too distracting. It opens instantly, gets out of your way, and lets you write.
