@@ -14,8 +14,7 @@
 ---
 
 
-[Windows için indir](https://github.com/namik55/SpadeNotes/releases/latest/download/SpadeNotes-Setup.exe)
-
+[Windows için indir](https://github.com/namik55/SpadeNotes/releases/download/v0.1/SpadeNotes-windows.zip)
 
 
 ## What is SpadeNotes?
